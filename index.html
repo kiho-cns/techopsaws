@@ -62,6 +62,16 @@
       color: #fff;
     }
 
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.08), transparent 35%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.12), transparent 35%);
+      pointer-events: none;
+    }
+
     .hero::after {
       content: "";
       position: absolute;
@@ -146,6 +156,23 @@
       white-space: nowrap;
     }
 
+    .hero-sub {
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255, 255, 255, 0.78);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .hero-sub span {
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
     .status-row {
       display: flex;
       flex-wrap: wrap;
@@ -166,31 +193,39 @@
     }
 
     .tab-bar.primary {
-      background: transparent;
-      border-color: rgba(215, 221, 227, 0.7);
+      background: rgba(255, 255, 255, 0.72);
+      border-color: rgba(215, 221, 227, 0.6);
       position: sticky;
       top: 10px;
       z-index: 5;
-      padding: 6px 0;
-      border-radius: 0;
+      padding: 10px;
+      border-radius: 16px;
       gap: 0;
-      justify-content: center;
-      border-left: none;
-      border-right: none;
-      border-top: none;
-      border-bottom: 1px solid rgba(215, 221, 227, 0.8);
-      box-shadow: none;
+      justify-content: flex-start;
+      border-left: 1px solid rgba(215, 221, 227, 0.6);
+      border-right: 1px solid rgba(215, 221, 227, 0.6);
+      border-top: 1px solid rgba(215, 221, 227, 0.6);
+      border-bottom: 1px solid rgba(215, 221, 227, 0.6);
+      box-shadow: 0 10px 18px rgba(32, 37, 43, 0.06);
     }
 
     .tab-bar.primary .tab {
-      background: #fff;
-      border-color: rgba(215, 221, 227, 0.9);
-      border-radius: 6px;
-      box-shadow: 0 4px 10px rgba(32, 37, 43, 0.06);
-      padding: 10px 18px;
-      margin: 0 6px;
+      background: rgba(255, 255, 255, 0.92);
+      border-color: rgba(215, 221, 227, 0.8);
+      border-radius: 999px;
+      box-shadow: none;
+      padding: 10px 22px;
+      margin: 0 6px 0 0;
       font-size: 0.98rem;
       letter-spacing: 0.02em;
+      color: var(--lg-gray-900);
+    }
+
+    .tab-bar.primary .tab.active {
+      background: var(--lg-red);
+      border-color: rgba(165, 0, 52, 0.8);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(165, 0, 52, 0.18);
     }
 
     .section-label {
@@ -214,15 +249,15 @@
     }
 
     .switcher-area {
-      padding: 6px 0 0;
+      padding: 0;
       border-radius: var(--radius-xl);
       background: transparent;
       border: none;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .switcher-section {
-      padding: 6px 0 0;
+      padding: 0;
       background: transparent;
       border: none;
       box-shadow: none;
@@ -298,6 +333,35 @@
       display: block;
     }
 
+    footer {
+      margin-top: 30px;
+      padding: 18px 22px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.75);
+      border: 1px solid rgba(215, 221, 227, 0.6);
+      color: var(--lg-gray-700);
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    footer .foot-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+    }
+
+    footer .foot-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--lg-gray-500);
+    }
+
     .tab {
       position: relative;
       border: 1px solid rgba(215, 221, 227, 0.9);
@@ -322,10 +386,15 @@
     }
 
     .tab.active {
-      background: rgba(165, 0, 52, 0.08);
-      border-color: rgba(165, 0, 52, 0.45);
-      color: var(--lg-red);
-      box-shadow: 0 10px 18px rgba(165, 0, 52, 0.12);
+      background: var(--lg-red);
+      border-color: rgba(165, 0, 52, 0.7);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(165, 0, 52, 0.14);
+    }
+
+    .tab.active:focus-visible {
+      outline: 2px solid rgba(255, 255, 255, 0.8);
+      outline-offset: 2px;
     }
 
     .tab.active::after {
@@ -355,16 +424,16 @@
     main {
       margin-top: 28px;
       display: grid;
-      gap: 40px;
+      gap: 36px;
     }
 
     .team-section {
-      padding: 22px;
+      padding: 20px;
       border-radius: var(--radius-xl);
-      background: rgba(255, 255, 255, 0.7);
-      border: 1px solid rgba(215, 221, 227, 0.55);
-      box-shadow: 0 12px 26px rgba(32, 37, 43, 0.05);
-      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.66);
+      border: 1px solid rgba(215, 221, 227, 0.45);
+      box-shadow: 0 8px 18px rgba(32, 37, 43, 0.04);
+      backdrop-filter: blur(6px);
     }
 
     .section-head {
@@ -668,16 +737,21 @@
       <div class="hero-copy">
         <div class="hero-header">
           <div class="brand" aria-label="LG style brand mark">
-          <span class="brand-logo-wrap" aria-label="LG CNS 로고">
-            <img class="brand-mark" src="assets/lgcns-mark.png" alt="LG 로고">
-            <img class="brand-wordmark" src="assets/lgcns-wordmark-white.png" alt="LG CNS">
-          </span>
+            <span class="brand-logo-wrap" aria-label="LG CNS 로고">
+              <img class="brand-mark" src="assets/lgcns-mark.png" alt="LG 로고">
+              <img class="brand-wordmark" src="assets/lgcns-wordmark-white.png" alt="LG CNS">
+            </span>
             <div>
               <p class="eyebrow">ERP TECHOPS TEAM</p>
               <strong>ERP 솔루션 서비스팀</strong>
             </div>
           </div>
           <span class="hero-badge">팀 네비게이터(이름 공모중)</span>
+        </div>
+        <div class="hero-sub">
+          <span>업무 링크 허브</span>
+          <span>빠른 이동</span>
+          <span>공통/파트별 정리</span>
         </div>
       </div>
     </section>
@@ -731,11 +805,17 @@
           </a>
         </div>
           <div class="link-list">
-          <h4>MSM SharePoint Links</h4>
+          <h4>MSM-즐겨찾기</h4>
           <ul>
             <li>
               <a href="https://lgcns.sharepoint.com/:x:/s/SAPECSTechops/Ef2wTPRGBedPndD616SklGQBJnzgDZ_F0ukT2X46rkGgpQ?e=NiQNot" target="_blank" rel="noreferrer">
                 티켓 처리현황
+                <span>SharePoint</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://lgcns.sharepoint.com/:x:/s/SAPECSTechops/Edrux023o5NChZw69xbewpoBMBjRf-d2fYMAtvuXLptSjw?e=z8IJ7F" target="_blank" rel="noreferrer">
+                필드글라스 입력
                 <span>SharePoint</span>
               </a>
             </li>
@@ -749,6 +829,12 @@
               <a href="https://lgcns.sharepoint.com/:x:/s/SAPECSTechops/IQBKK4GG7ttgR6E1my121CvJAZH_nuH8Uq7uIZPZkmt2_qA?e=Q3tuLs" target="_blank" rel="noreferrer">
                 GDN 에포트 입력
                 <span>SharePoint</span>
+              </a>
+            </li>
+            <li>
+              <a href="https://wire.lgcns.com/confluence/spaces/DS02030832Y2020/pages/1397133752/2026%EB%85%84+MSM+%EC%A3%BC%EA%B0%84%EB%B3%B4%EA%B3%A0" target="_blank" rel="noreferrer">
+                MSM 주간보고
+                <span>Wiki</span>
               </a>
             </li>
           </ul>
@@ -842,6 +928,17 @@
         </div>
       </section>
     </main>
+
+    <footer>
+      <div class="foot-left">
+        ERP TECHOPS TEAM
+      </div>
+      <div class="foot-right">
+        문의: choimaest@lgcns.com
+        <span>·</span>
+        Updated via GitHub Pages
+      </div>
+    </footer>
   </div>
 
   <a class="fab-mail" href="mailto:choimaest@lgcns.com?subject=%EC%88%98%EC%A0%95%20%EC%9A%94%EC%B2%AD" aria-label="수정요청 메일 보내기">
