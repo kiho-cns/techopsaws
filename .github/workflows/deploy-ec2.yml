@@ -1,0 +1,40 @@
+name: Deploy To EC2
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Upload Site Files To EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT || '22' }}
+          source: "index.html,assets"
+          target: "/home/ec2-user/erpdash"
+          rm: true
+
+      - name: Publish Through Nginx
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: ${{ secrets.EC2_PORT || '22' }}
+          script: |
+            sudo mkdir -p /usr/share/nginx/html
+            sudo rm -rf /usr/share/nginx/html/*
+            sudo cp -r /home/ec2-user/erpdash/. /usr/share/nginx/html/
+            sudo chown -R nginx:nginx /usr/share/nginx/html
+            sudo systemctl restart nginx

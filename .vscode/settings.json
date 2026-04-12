@@ -1,0 +1,8 @@
+{
+    "devon-aide.resourcePath": "c:\\Users\\82056\\.vscode\\extensions\\lg-cns.devon-aidd-2.0.0\\resource",
+    "devon-aide.aiplayChatMaxCount": 30,
+    "devon-aide.aiplayChatPreviousMaxCount": 5,
+    "devon-aide.aiplayHistoryMaxCount": 30,
+    "devon-aidd.ActivationFlag.logcollector": true,
+    "devon-aidd.useAgentMode": true
+}

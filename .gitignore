@@ -1,0 +1,12 @@
+.vercel
+.env
+.env.local
+.env.*.local
+node_modules
+dist
+build
+aws_sugong.ppk
+*.pem
+*.ppk
+~$*.xlsx
+Team Info.xlsx
