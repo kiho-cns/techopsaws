@@ -46,6 +46,15 @@ function formatIncidentMessage(incident) {
 function buildSlackPayload(incident) {
   const sentText = formatIncidentMessage(incident);
   return {
+    inputs: {
+      Ft0AT7FYKW6A__3f755ff93b3359652c0c41a5dacbf17b: incident.category,
+      Ft0AT7FYKW6A__daf99bd5abaa0c8ef35d536fce0a2e85: incident.symptom,
+      Ft0AT7FYKW6A__a7677c938cb5706d99628cd8a6ef1170: incident.customer,
+      Ft0AT7FYKW6A__712e21f9ea8c428669c1af2923b1ea2d: incident.issueSystem,
+      Ft0AT7FYKW6A__c01954a5d84a92a85a8fcb35f0b40166: incident.occurredAt,
+      Ft0AT7FYKW6A__9ee47a669a90e93b95cc56f195ec7971: incident.cause || "미정",
+      Ft0AT7FYKW6A__progress_text: incident.progressText || ""
+    },
     issue_category: incident.category,
     issue_symptom: incident.symptom,
     target_customer: incident.customer,
