@@ -43,6 +43,20 @@ function formatIncidentMessage(incident) {
   ].join("\n");
 }
 
+function buildSlackPayload(incident) {
+  const sentText = formatIncidentMessage(incident);
+  return {
+    issue_category: incident.category,
+    issue_symptom: incident.symptom,
+    target_customer: incident.customer,
+    issue_system: incident.issueSystem,
+    occurred_at: incident.occurredAt,
+    issue_cause: incident.cause || "미정",
+    progress_text: incident.progressText || "없음",
+    text: sentText
+  };
+}
+
 async function ensureDataFile() {
   const dir = path.dirname(DATA_FILE);
   await fs.mkdir(dir, { recursive: true });
@@ -149,7 +163,8 @@ app.post("/api/incidents", async (req, res) => {
     await writeStore(store);
 
     const sentText = formatIncidentMessage(incident);
-    const delivery = await sendToSlack({ text: sentText });
+    const slackPayload = buildSlackPayload(incident);
+    const delivery = await sendToSlack(slackPayload);
 
     return res.status(201).json({
       incident,
