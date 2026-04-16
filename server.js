@@ -5,6 +5,11 @@ const dotenv = require("dotenv");
 
 dotenv.config();
 
+const fetchImpl =
+  typeof fetch === "function"
+    ? fetch.bind(globalThis)
+    : (...args) => import("node-fetch").then(({ default: fetchFn }) => fetchFn(...args));
+
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const DATA_FILE = path.join(__dirname, "data", "incidents.json");
@@ -76,7 +81,7 @@ async function sendToSlack(payload) {
   const timer = setTimeout(() => controller.abort(), 10000);
   let response;
   try {
-    response = await fetch(SLACK_WEBHOOK_URL, {
+    response = await fetchImpl(SLACK_WEBHOOK_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json; charset=utf-8" },
       body: JSON.stringify(payload),
