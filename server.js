@@ -33,7 +33,7 @@ function formatDateTime(date = new Date()) {
 
 function formatIncidentMessage(incident) {
   return [
-    `1. 장애 카테고리: ${incident.category}`,
+    `1. 장애 제목: ${incident.category}`,
     `2. 장애 현상: ${incident.symptom}`,
     `3. 대상 고객: ${incident.customer}`,
     `4. 장애 시스템: ${incident.issueSystem}`,
@@ -113,7 +113,7 @@ app.post("/api/incidents", async (req, res) => {
       req.body || {};
 
     if (!category || !String(category).trim()) {
-      return res.status(400).json({ error: "장애 카테고리는 필수입니다." });
+      return res.status(400).json({ error: "장애 제목은 필수입니다." });
     }
     if (!symptom || !String(symptom).trim()) {
       return res.status(400).json({ error: "장애 현상은 필수입니다." });
