@@ -53,7 +53,7 @@ function buildSlackPayload(incident) {
       Ft0AT7FYKW6A__712e21f9ea8c428669c1af2923b1ea2d: incident.issueSystem,
       Ft0AT7FYKW6A__c01954a5d84a92a85a8fcb35f0b40166: incident.occurredAt,
       Ft0AT7FYKW6A__9ee47a669a90e93b95cc56f195ec7971: incident.cause || "미정",
-      Ft0AT7FYKW6A__progress_text: incident.progressText || ""
+      Ft0AT7FYKW6A__f26317a15c70559db9a8938a0873727f: incident.progressText || ""
     },
     issue_category: incident.category,
     issue_symptom: incident.symptom,
