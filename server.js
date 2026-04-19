@@ -128,8 +128,9 @@ async function sendToSlack(payload) {
 
   if (!response.ok) {
     const body = await response.text();
-    throw new Error(`슬랙 웹훅 실패 (${response.status}): ${body}`);
+    throw new Error(`슬랙 웹훅 전송 실패 (${response.status}): ${body}`);
   }
+
   return { simulated: false, delivered: true };
 }
 

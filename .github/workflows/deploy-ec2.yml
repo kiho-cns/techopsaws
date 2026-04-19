@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           port: ${{ secrets.EC2_PORT || '22' }}
-          source: "index.html,assets,server.js,package.json,package-lock.json,data,.env.example"
+          source: "index.html,assets,server.js,package.json,package-lock.json,data,.env.example,Team Info.xlsx"
           target: "/home/ec2-user/erpdash"
           rm: true
 
