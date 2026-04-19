@@ -13,7 +13,9 @@ const fetchImpl =
 const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const DATA_FILE = path.join(__dirname, "data", "incidents.json");
+const NOTICE_FILE = path.join(__dirname, "data", "notice.json");
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL || "";
+const NOTICE_ADMIN_PASSWORD = process.env.NOTICE_ADMIN_PASSWORD || "leader_yang";
 const ALLOW_INSECURE_TLS =
   String(process.env.SLACK_ALLOW_INSECURE_TLS || "").toLowerCase() === "true";
 const ALLOW_SIMULATED_SEND =
@@ -66,24 +68,34 @@ function buildSlackPayload(incident) {
   };
 }
 
-async function ensureDataFile() {
-  const dir = path.dirname(DATA_FILE);
+async function ensureJsonFile(filePath, defaultData) {
+  const dir = path.dirname(filePath);
   await fs.mkdir(dir, { recursive: true });
   try {
-    await fs.access(DATA_FILE);
+    await fs.access(filePath);
   } catch {
-    await fs.writeFile(DATA_FILE, JSON.stringify({ incidents: [] }, null, 2), "utf8");
+    await fs.writeFile(filePath, JSON.stringify(defaultData, null, 2), "utf8");
   }
 }
 
 async function readStore() {
-  await ensureDataFile();
+  await ensureJsonFile(DATA_FILE, { incidents: [] });
   const raw = await fs.readFile(DATA_FILE, "utf8");
   return JSON.parse(raw);
 }
 
 async function writeStore(store) {
   await fs.writeFile(DATA_FILE, JSON.stringify(store, null, 2), "utf8");
+}
+
+async function readNoticeStore() {
+  await ensureJsonFile(NOTICE_FILE, { text: "" });
+  const raw = await fs.readFile(NOTICE_FILE, "utf8");
+  return JSON.parse(raw);
+}
+
+async function writeNoticeStore(store) {
+  await fs.writeFile(NOTICE_FILE, JSON.stringify(store, null, 2), "utf8");
 }
 
 async function sendToSlack(payload) {
@@ -128,6 +140,32 @@ app.get("/api/health", (req, res) => {
     mode: SLACK_WEBHOOK_URL ? "live" : "simulated",
     webhookConfigured: Boolean(SLACK_WEBHOOK_URL)
   });
+});
+
+app.get("/api/notice", async (req, res) => {
+  try {
+    const store = await readNoticeStore();
+    res.json({ text: String(store.text || "") });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message || "notice read error" });
+  }
+});
+
+app.post("/api/notice", async (req, res) => {
+  try {
+    const { password, text } = req.body || {};
+    if (String(password || "") !== NOTICE_ADMIN_PASSWORD) {
+      return res.status(403).json({ error: "invalid notice admin password" });
+    }
+
+    const nextText = String(text || "").trim();
+    await writeNoticeStore({ text: nextText, updatedAt: formatDateTime() });
+    return res.json({ ok: true, text: nextText });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: error.message || "notice write error" });
+  }
 });
 
 app.post("/api/incidents", async (req, res) => {

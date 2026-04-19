@@ -474,6 +474,116 @@
       text-align: center;
     }
 
+    .notice-widget {
+      position: fixed;
+      right: 20px;
+      top: 96px;
+      width: min(320px, calc(100vw - 28px));
+      border-radius: 16px;
+      border: 1px solid rgba(215, 221, 227, 0.9);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 16px 28px rgba(32, 37, 43, 0.18);
+      z-index: 35;
+      overflow: hidden;
+    }
+
+    .notice-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(165, 0, 52, 0.13), rgba(165, 0, 52, 0.05));
+      border-bottom: 1px solid rgba(215, 221, 227, 0.8);
+    }
+
+    .notice-head-controls {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .notice-toggle-btn {
+      border: 1px solid rgba(215, 221, 227, 0.95);
+      background: #fff;
+      color: var(--lg-gray-700);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.74rem;
+      font-weight: 900;
+      cursor: pointer;
+      min-width: 44px;
+    }
+
+    .notice-toggle-btn:hover,
+    .notice-toggle-btn:focus-visible {
+      border-color: rgba(165, 0, 52, 0.45);
+      color: var(--lg-red);
+      outline: none;
+    }
+
+    .notice-title {
+      margin: 0;
+      font-size: 0.92rem;
+      font-weight: 900;
+      color: var(--lg-gray-900);
+      letter-spacing: -0.01em;
+    }
+
+    .notice-admin-btn {
+      border: 1px solid rgba(215, 221, 227, 0.95);
+      background: #fff;
+      color: var(--lg-gray-700);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    .notice-admin-btn:hover,
+    .notice-admin-btn:focus-visible {
+      border-color: rgba(165, 0, 52, 0.45);
+      color: var(--lg-red);
+      outline: none;
+    }
+
+    .notice-body {
+      margin: 0;
+      padding: 12px;
+      white-space: pre-wrap;
+      line-height: 1.45;
+      font-size: 0.86rem;
+      color: var(--lg-gray-700);
+      max-height: 240px;
+      overflow: auto;
+    }
+
+    .notice-widget.collapsed {
+      width: 128px;
+    }
+
+    .notice-widget.collapsed .notice-admin-btn,
+    .notice-widget.collapsed .notice-body {
+      display: none;
+    }
+
+    .notice-edit-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .notice-welcome-list {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 8px;
+      color: var(--lg-gray-700);
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -1097,6 +1207,12 @@
         width: min(94vw, 300px);
       }
 
+      .notice-widget {
+        right: 10px;
+        top: 152px;
+        width: min(96vw, 360px);
+      }
+
       .incident-grid {
         grid-template-columns: 1fr;
       }
@@ -1335,6 +1451,33 @@
     <span class="fab-emergency-text">긴급 장애 메시지 작성<br>* slack으로 발송. 복사하여 카톡 전달</span>
   </button>
 
+  <aside class="notice-widget" id="noticePanel" aria-label="우측 공지">
+    <div class="notice-head">
+      <h3 class="notice-title">공지</h3>
+      <div class="notice-head-controls">
+        <button class="notice-toggle-btn" type="button" id="toggleNoticePanel" aria-expanded="true">접기</button>
+        <button class="notice-admin-btn" type="button" id="openNoticeAdmin">공지 수정</button>
+      </div>
+    </div>
+    <p class="notice-body" id="noticeBody">- 공지 내용을 입력해 주세요.</p>
+  </aside>
+
+  <div class="modal-overlay" id="noticeWelcomeOverlay" role="dialog" aria-modal="true" aria-labelledby="noticeWelcomeTitle">
+    <div class="incident-modal">
+      <div class="incident-head">
+        <h3 id="noticeWelcomeTitle">공지</h3>
+        <button class="incident-close" type="button" id="closeNoticeWelcome" aria-label="공지 닫기">×</button>
+      </div>
+      <div class="incident-result-body">
+        <ul id="noticeWelcomeBody" class="notice-welcome-list"></ul>
+      </div>
+      <div class="incident-actions">
+        <button type="button" class="incident-btn secondary" id="dismissNoticeToday">오늘 더이상 안보기</button>
+        <button type="button" class="incident-btn primary" id="confirmNoticeWelcome">확인</button>
+      </div>
+    </div>
+  </div>
+
   <div class="modal-overlay" id="incidentModalOverlay" role="dialog" aria-modal="true" aria-labelledby="incidentModalTitle">
     <div class="incident-modal">
       <div class="incident-head">
@@ -1399,6 +1542,29 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="noticeAdminOverlay" role="dialog" aria-modal="true" aria-labelledby="noticeAdminTitle">
+    <div class="incident-modal">
+      <div class="incident-head">
+        <h3 id="noticeAdminTitle">공지 수정 (팀장 전용)</h3>
+        <button class="incident-close" type="button" id="closeNoticeAdmin" aria-label="공지 수정 닫기">×</button>
+      </div>
+      <form id="noticeAdminForm" class="notice-edit-grid">
+        <div class="incident-field">
+          <label for="noticeAdminPassword">비밀번호</label>
+          <input id="noticeAdminPassword" type="password" placeholder="비밀번호 입력" required>
+        </div>
+        <div class="incident-field">
+          <label for="noticeAdminText">공지 내용</label>
+          <textarea id="noticeAdminText" placeholder="공지 문구를 입력하세요" required></textarea>
+        </div>
+        <div class="incident-actions">
+          <button type="button" class="incident-btn secondary" id="cancelNoticeAdmin">취소</button>
+          <button type="submit" class="incident-btn primary">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
     const tabs = Array.from(document.querySelectorAll('.tab[data-tab]'));
     const sections = Array.from(document.querySelectorAll('.team-section[data-section]'));
@@ -1424,34 +1590,26 @@
 
     setActive('msm');
 
-    const host = window.location.hostname;
-    const INCIDENT_API_CANDIDATES = [
-      `${window.location.origin}/api/incidents`,
-      `http://${host}:3000/api/incidents`,
-      'http://127.0.0.1:3000/api/incidents',
-      'http://localhost:3000/api/incidents',
-      'http://3.37.240.172:3000/api/incidents'
-    ];
+    const INCIDENT_API_URL = `${window.location.origin}/api/incidents`;
 
     async function postIncident(payload) {
-      let lastError = null;
-      for (const apiUrl of INCIDENT_API_CANDIDATES) {
-        try {
-          const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-          const data = await response.json().catch(() => ({}));
-          if (!response.ok) {
-            throw new Error(data.error || `요청 실패 (${response.status})`);
-          }
-          return { data, apiUrl };
-        } catch (error) {
-          lastError = new Error(`[${apiUrl}] ${error.message || '요청 실패'}`);
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      try {
+        const response = await fetch(INCIDENT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          signal: controller.signal
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.error || `요청 실패 (${response.status})`);
         }
+        return { data, apiUrl: INCIDENT_API_URL };
+      } finally {
+        clearTimeout(timer);
       }
-      throw lastError || new Error('장애 전송 API 호출에 실패했습니다.');
     }
 
     const openBtn = document.getElementById('openEmergencyModal');
@@ -1468,6 +1626,30 @@
     const causeInput = document.getElementById('incidentCause');
     const customerInput = document.getElementById('incidentCustomer');
     const submitBtn = form.querySelector('button[type="submit"]');
+    const noticeBody = document.getElementById('noticeBody');
+    const noticePanel = document.getElementById('noticePanel');
+    const noticeOverlay = document.getElementById('noticeAdminOverlay');
+    const noticeWelcomeOverlay = document.getElementById('noticeWelcomeOverlay');
+    const openNoticeAdminBtn = document.getElementById('openNoticeAdmin');
+    const toggleNoticePanelBtn = document.getElementById('toggleNoticePanel');
+    const closeNoticeAdminBtn = document.getElementById('closeNoticeAdmin');
+    const cancelNoticeAdminBtn = document.getElementById('cancelNoticeAdmin');
+    const closeNoticeWelcomeBtn = document.getElementById('closeNoticeWelcome');
+    const dismissNoticeTodayBtn = document.getElementById('dismissNoticeToday');
+    const confirmNoticeWelcomeBtn = document.getElementById('confirmNoticeWelcome');
+    const noticeAdminForm = document.getElementById('noticeAdminForm');
+    const noticeWelcomeBody = document.getElementById('noticeWelcomeBody');
+    const noticeAdminPassword = document.getElementById('noticeAdminPassword');
+    const noticeAdminText = document.getElementById('noticeAdminText');
+    const NOTICE_API_URL = '/api/notice';
+    const NOTICE_PANEL_COLLAPSED_KEY = 'notice_panel_collapsed';
+    const NOTICE_WELCOME_HIDE_DATE_KEY = 'notice_welcome_hide_date';
+    let currentNoticeText = '';
+    const defaultNotice = [
+      '- 오늘의 주요 공지',
+      '- 장애/변경 작업 일정',
+      '- 공지 수정은 팀장 전용'
+    ].join('\n');
 
     function nowText() {
       const d = new Date();
@@ -1500,13 +1682,95 @@
       resultOverlay.classList.remove('open');
     }
 
+    function todayKey() {
+      const d = new Date();
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    async function loadNotice() {
+      try {
+        const response = await fetch(NOTICE_API_URL, { headers: { 'Accept': 'application/json' } });
+        if (!response.ok) {
+          throw new Error(`notice load failed: ${response.status}`);
+        }
+        const data = await response.json();
+        currentNoticeText = String((data && data.text) || '').trim();
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    function renderNotice() {
+      const nextText = currentNoticeText && currentNoticeText.trim() ? currentNoticeText : defaultNotice;
+      noticeBody.textContent = nextText;
+      if (noticeWelcomeBody) {
+        const items = nextText
+          .split('\n')
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line) => line.replace(/^[-*•]\s*/, '').trim())
+          .filter(Boolean);
+
+        noticeWelcomeBody.innerHTML = '';
+        const finalItems = items.length > 0 ? items : [nextText];
+        finalItems.forEach((item) => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          noticeWelcomeBody.appendChild(li);
+        });
+      }
+    }
+
+    function setNoticePanelCollapsed(collapsed) {
+      noticePanel.classList.toggle('collapsed', collapsed);
+      toggleNoticePanelBtn.textContent = collapsed ? '펼치기' : '접기';
+      toggleNoticePanelBtn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+      localStorage.setItem(NOTICE_PANEL_COLLAPSED_KEY, collapsed ? '1' : '0');
+    }
+
+    function openNoticeWelcomeModal() {
+      noticeWelcomeOverlay.classList.add('open');
+    }
+
+    function closeNoticeWelcomeModal() {
+      noticeWelcomeOverlay.classList.remove('open');
+    }
+
+    function openNoticeAdminModal() {
+      noticeAdminText.value = noticeBody.textContent || currentNoticeText || defaultNotice;
+      noticeAdminPassword.value = '';
+      noticeOverlay.classList.add('open');
+      noticeAdminPassword.focus();
+    }
+
+    function closeNoticeAdminModal() {
+      noticeOverlay.classList.remove('open');
+      noticeAdminPassword.value = '';
+    }
+
     openBtn.addEventListener('click', openFormModal);
     closeFormBtn.addEventListener('click', closeFormModal);
     cancelFormBtn.addEventListener('click', closeFormModal);
     closeResultBtn.addEventListener('click', closeResultModal);
     confirmResultBtn.addEventListener('click', closeResultModal);
+    openNoticeAdminBtn.addEventListener('click', openNoticeAdminModal);
+    toggleNoticePanelBtn.addEventListener('click', () => {
+      const isCollapsed = noticePanel.classList.contains('collapsed');
+      setNoticePanelCollapsed(!isCollapsed);
+    });
+    closeNoticeAdminBtn.addEventListener('click', closeNoticeAdminModal);
+    cancelNoticeAdminBtn.addEventListener('click', closeNoticeAdminModal);
+    closeNoticeWelcomeBtn.addEventListener('click', closeNoticeWelcomeModal);
+    dismissNoticeTodayBtn.addEventListener('click', () => {
+      localStorage.setItem(NOTICE_WELCOME_HIDE_DATE_KEY, todayKey());
+      closeNoticeWelcomeModal();
+    });
+    confirmNoticeWelcomeBtn.addEventListener('click', closeNoticeWelcomeModal);
 
-    [formOverlay, resultOverlay].forEach((overlay) => {
+    [formOverlay, resultOverlay, noticeOverlay, noticeWelcomeOverlay].forEach((overlay) => {
       overlay.addEventListener('click', (event) => {
         if (event.target === overlay) {
           overlay.classList.remove('open');
@@ -1553,6 +1817,42 @@
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '슬랙 전송';
+      }
+    });
+
+    noticeAdminForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const password = noticeAdminPassword.value.trim();
+      const noticeText = noticeAdminText.value.trim();
+
+      try {
+        const response = await fetch(NOTICE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json; charset=utf-8' },
+          body: JSON.stringify({ password, text: noticeText || defaultNotice })
+        });
+        if (!response.ok) {
+          throw new Error('notice save failed');
+        }
+      } catch (error) {
+        alert('공지 저장 중 오류가 발생했습니다. 비밀번호를 다시 확인해 주세요.');
+        console.error(error);
+        return;
+      }
+      currentNoticeText = noticeText || defaultNotice;
+      renderNotice();
+      closeNoticeAdminModal();
+      alert('공지 내용이 저장되었습니다.');
+    });
+
+    const isNoticePanelCollapsed = localStorage.getItem(NOTICE_PANEL_COLLAPSED_KEY) === '1';
+    setNoticePanelCollapsed(isNoticePanelCollapsed);
+
+    loadNotice().then(() => {
+      renderNotice();
+      const hiddenUntilDate = localStorage.getItem(NOTICE_WELCOME_HIDE_DATE_KEY) || '';
+      if (hiddenUntilDate !== todayKey()) {
+        openNoticeWelcomeModal();
       }
     });
   </script>

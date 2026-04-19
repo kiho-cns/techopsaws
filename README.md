@@ -1,25 +1,29 @@
-# ERP TECHOPS TEAM Navigation
+# ERP TECHOPS LEADER AWS
 
-Single-page navigation for the ERP TECHOPS team.
+Single-page team dashboard with lightweight Node API for:
+- Emergency incident Slack delivery
+- Shared notice read/update
 
-## Files
-
-- `index.html`: main navigation page
-- `server.js`: static serving + `/api/incidents` emergency Slack API
-
-## Local Run
-
+## Run Local
 1. `npm install`
-2. `.env.example`를 복사해 `.env` 생성
-3. `SLACK_WEBHOOK_URL` 설정 (미설정 시 전송 실패 처리)
-4. 필요 시에만 `ALLOW_SIMULATED_SEND=true` 사용
-5. `npm start`
-6. 접속: `http://127.0.0.1:5000`
+2. Copy `.env.example` to `.env`
+3. Set values in `.env`:
+- `PORT=5000`
+- `SLACK_WEBHOOK_URL=...` (required for live Slack send)
+- `NOTICE_ADMIN_PASSWORD=leader_yang` (change for production)
+4. `npm start`
+5. Open `http://127.0.0.1:5000`
 
-## EC2 CI/CD Notes
+## API
+- `GET /api/health`
+- `POST /api/incidents`
+- `GET /api/notice`
+- `POST /api/notice`
 
-- GitHub Actions `deploy-ec2.yml`는 정적 페이지 + Incident API(`server.js`)를 함께 배포합니다.
-- Nginx는 `/api/*`를 내부 Node API(`127.0.0.1:3000`)로 프록시합니다.
-- GitHub Secrets 필수:
-  - `EC2_HOST`, `EC2_USER`, `EC2_SSH_KEY` (기존)
-  - `EC2_SLACK_WEBHOOK_URL` (긴급 슬랙 전송용)
+## Deploy
+- CI/CD workflow: `.github/workflows/deploy-ec2.yml`
+- Target server path: `/home/ec2-user/erpdash`
+- Nginx serves static files and proxies `/api/*` to Node.
+
+## Architecture Note
+- High-level architecture flow: `ERP_TECHOPS_LEADER_AWS_Architecture_Flow.md`
