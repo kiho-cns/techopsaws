@@ -35,6 +35,81 @@
         radial-gradient(circle at top left, rgba(165, 0, 52, 0.12), transparent 28%),
         radial-gradient(circle at top right, rgba(165, 0, 52, 0.08), transparent 20%),
         linear-gradient(135deg, #fafbfc 0%, #f0f3f6 52%, #e9edf1 100%);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    .bg-mosaic {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-rows: repeat(12, minmax(0, 1fr));
+      gap: 12px;
+      padding: 12px;
+      opacity: 0.62;
+      pointer-events: none;
+      z-index: -2;
+    }
+
+    .bg-tile {
+      border-radius: 22px;
+      background-image: url("assets/erpteam.jpg");
+      background-size: cover;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.26);
+      transition: transform 420ms ease, filter 420ms ease, opacity 420ms ease;
+      will-change: transform;
+    }
+
+    .bg-tile:nth-child(1) {
+      grid-column: 1 / span 7;
+      grid-row: 1 / span 7;
+      background-position: 24% 66%;
+      filter: saturate(0.92);
+    }
+
+    .bg-tile:nth-child(2) {
+      grid-column: 8 / -1;
+      grid-row: 1 / span 5;
+      background-position: 80% 64%;
+      opacity: 0.92;
+    }
+
+    .bg-tile:nth-child(3) {
+      grid-column: 1 / span 5;
+      grid-row: 8 / -1;
+      background-position: 30% 84%;
+      opacity: 0.94;
+    }
+
+    .bg-tile:nth-child(4) {
+      grid-column: 6 / -1;
+      grid-row: 6 / -1;
+      background-position: 68% 84%;
+      filter: saturate(0.95);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .bg-mosaic:hover .bg-tile {
+        transform: scale(1.008);
+      }
+
+      .bg-mosaic:hover .bg-tile:nth-child(1) { transform: translate(-2px, -2px) scale(1.012); }
+      .bg-mosaic:hover .bg-tile:nth-child(2) { transform: translate(2px, -1px) scale(1.01); }
+      .bg-mosaic:hover .bg-tile:nth-child(3) { transform: translate(-1px, 2px) scale(1.01); }
+      .bg-mosaic:hover .bg-tile:nth-child(4) { transform: translate(2px, 2px) scale(1.012); }
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.48), rgba(244, 248, 246, 0.42)),
+        radial-gradient(circle at 15% 10%, rgba(86, 132, 103, 0.18), transparent 42%),
+        radial-gradient(circle at 88% 12%, rgba(177, 106, 138, 0.14), transparent 40%);
+      pointer-events: none;
+      z-index: -1;
     }
 
     .page-shell {
@@ -43,8 +118,8 @@
       padding: 28px;
       border: 1px solid rgba(255, 255, 255, 0.7);
       border-radius: 36px;
-      background: rgba(255, 255, 255, 0.58);
-      backdrop-filter: blur(18px);
+      background: rgba(255, 255, 255, 0.36);
+      backdrop-filter: blur(12px);
       box-shadow: var(--shadow);
     }
 
@@ -187,13 +262,13 @@
       margin: 6px 0 6px;
       padding: 10px 12px;
       border-radius: 14px;
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.54);
       border: 1px solid rgba(215, 221, 227, 0.75);
       box-shadow: 0 10px 20px rgba(32, 37, 43, 0.06);
     }
 
     .tab-bar.primary {
-      background: rgba(255, 255, 255, 0.72);
+      background: rgba(255, 255, 255, 0.56);
       border-color: rgba(215, 221, 227, 0.6);
       position: sticky;
       top: 10px;
@@ -668,7 +743,7 @@
     .team-section {
       padding: 20px;
       border-radius: var(--radius-xl);
-      background: rgba(255, 255, 255, 0.66);
+      background: rgba(255, 255, 255, 0.5);
       border: 1px solid rgba(215, 221, 227, 0.45);
       box-shadow: 0 8px 18px rgba(32, 37, 43, 0.04);
       backdrop-filter: blur(6px);
@@ -938,6 +1013,27 @@
     }
 
     @media (max-width: 720px) {
+      .bg-mosaic {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        padding: 8px;
+        opacity: 0.56;
+      }
+
+      .bg-tile {
+        border-radius: 14px;
+        transform: none !important;
+      }
+
+      .bg-tile:nth-child(1),
+      .bg-tile:nth-child(2),
+      .bg-tile:nth-child(3),
+      .bg-tile:nth-child(4) {
+        grid-column: auto;
+        grid-row: auto;
+      }
+
       .page-shell {
         width: min(100% - 20px, 100%);
         margin: 10px auto;
@@ -1008,6 +1104,13 @@
   </style>
 </head>
 <body>
+  <div class="bg-mosaic" aria-hidden="true">
+    <div class="bg-tile"></div>
+    <div class="bg-tile"></div>
+    <div class="bg-tile"></div>
+    <div class="bg-tile"></div>
+  </div>
+
   <div class="page-shell">
     <section class="hero">
       <div class="hero-copy">
