@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs/promises");
 const path = require("path");
 const dotenv = require("dotenv");
+const XLSX = require("xlsx");
 
 dotenv.config();
 
@@ -14,12 +15,18 @@ const app = express();
 const PORT = Number(process.env.PORT || 5000);
 const DATA_FILE = path.join(__dirname, "data", "incidents.json");
 const NOTICE_FILE = path.join(__dirname, "data", "notice.json");
+const TEAM_INFO_FILE = path.join(__dirname, "Team Info.xlsx");
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL || "";
 const NOTICE_ADMIN_PASSWORD = process.env.NOTICE_ADMIN_PASSWORD || "leader_yang";
 const ALLOW_INSECURE_TLS =
   String(process.env.SLACK_ALLOW_INSECURE_TLS || "").toLowerCase() === "true";
 const ALLOW_SIMULATED_SEND =
   String(process.env.ALLOW_SIMULATED_SEND || "").toLowerCase() === "true";
+
+let birthdayCache = {
+  mtimeMs: 0,
+  all: []
+};
 
 app.use(express.json());
 app.use(express.static(__dirname));
@@ -31,6 +38,151 @@ function formatDateTime(date = new Date()) {
   const hh = String(date.getHours()).padStart(2, "0");
   const min = String(date.getMinutes()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+}
+
+function normalizeHeaderCell(value) {
+  return String(value ?? "")
+    .replace(/['"“”‘’]/g, "")
+    .replace(/\s+/g, "")
+    .trim();
+}
+
+function cleanCellText(value) {
+  return String(value ?? "")
+    .trim()
+    .replace(/^['"“”‘’]+|['"“”‘’]+$/g, "")
+    .trim();
+}
+
+function parseBirthday(value) {
+  if (value === null || value === undefined || value === "") return null;
+
+  if (typeof value === "number" && Number.isFinite(value)) {
+    const parsedDate = XLSX.SSF.parse_date_code(value);
+    const month = Number(parsedDate?.m);
+    const day = Number(parsedDate?.d);
+    if (Number.isInteger(month) && Number.isInteger(day) && month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+      return { month, day, label: `${month}월 ${day}일` };
+    }
+  }
+
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    const month = value.getMonth() + 1;
+    const day = value.getDate();
+    return { month, day, label: `${month}월 ${day}일` };
+  }
+
+  const text = cleanCellText(value);
+  if (!text) return null;
+  const normalized = text.replace(/\s+/g, "");
+  const mdOnly = normalized.match(/^(\d{1,2})[./-](\d{1,2})$/);
+  const ymd = normalized.match(/^(?:\d{2,4})[./-](\d{1,2})[./-](\d{1,2})$/);
+  const kor = normalized.match(/(\d{1,2})\D+(\d{1,2})/);
+  const match = mdOnly || ymd || kor;
+  if (!match) return null;
+  const month = Number(match[1]);
+  const day = Number(match[2]);
+  if (!Number.isInteger(month) || !Number.isInteger(day)) return null;
+  if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+  return { month, day, label: `${month}월 ${day}일` };
+}
+
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function diffDaysFromToday(month, day, baseDate = new Date()) {
+  const today = startOfDay(baseDate);
+  const msPerDay = 24 * 60 * 60 * 1000;
+  const candidates = [
+    new Date(today.getFullYear() - 1, month - 1, day),
+    new Date(today.getFullYear(), month - 1, day),
+    new Date(today.getFullYear() + 1, month - 1, day)
+  ];
+  return candidates
+    .map((candidate) => Math.round((startOfDay(candidate) - today) / msPerDay))
+    .sort((a, b) => Math.abs(a) - Math.abs(b))[0];
+}
+
+function findBirthdayHeader(rows) {
+  for (let i = 0; i < rows.length; i += 1) {
+    const row = Array.isArray(rows[i]) ? rows[i] : [];
+    const normalized = row.map((cell) => normalizeHeaderCell(cell));
+    const hasName = normalized.includes("이름");
+    const hasBirthday = normalized.includes("생일");
+    if (!hasName || !hasBirthday) continue;
+    return {
+      dataStartIndex: i + 1,
+      columnMap: {
+        name: normalized.indexOf("이름"),
+        grade: normalized.indexOf("직급"),
+        birthday: normalized.indexOf("생일"),
+        employeeId: normalized.indexOf("사번")
+      }
+    };
+  }
+  return null;
+}
+
+function toBirthdayEntries(rows, columnMap = null) {
+  return rows
+    .map((row) => {
+      const asArray = Array.isArray(row)
+        ? row
+        : [row["이름"] ?? "", row["직급"] ?? "", row["생일"] ?? "", row["사번"] ?? ""];
+      const nameIndex = columnMap && Number.isInteger(columnMap.name) && columnMap.name >= 0 ? columnMap.name : 0;
+      const gradeIndex = columnMap && Number.isInteger(columnMap.grade) && columnMap.grade >= 0 ? columnMap.grade : 1;
+      const birthdayIndex =
+        columnMap && Number.isInteger(columnMap.birthday) && columnMap.birthday >= 0 ? columnMap.birthday : 2;
+      const employeeIdIndex =
+        columnMap && Number.isInteger(columnMap.employeeId) && columnMap.employeeId >= 0 ? columnMap.employeeId : 3;
+
+      const columnOffset = !asArray[nameIndex] && asArray[nameIndex + 1] ? 1 : 0;
+      const name = cleanCellText(asArray[nameIndex + columnOffset]);
+      const grade = cleanCellText(asArray[gradeIndex + columnOffset]);
+      const birthdayCell = asArray[birthdayIndex + columnOffset];
+      const birthdayRaw = typeof birthdayCell === "string" ? cleanCellText(birthdayCell) : birthdayCell;
+      const employeeId = cleanCellText(asArray[employeeIdIndex + columnOffset]);
+      const parsed = parseBirthday(birthdayRaw);
+      if (!name || !employeeId || !parsed) return null;
+      return {
+        name,
+        grade,
+        birthday: parsed.label,
+        month: parsed.month,
+        day: parsed.day,
+        profileUrl: `https://ep.lgcns.com/portal/main/listUserMain.do?rightFrameUrl=/support/profile/getProfile.do?targetUserId=${encodeURIComponent(
+          employeeId
+        )}`
+      };
+    })
+    .filter(Boolean);
+}
+
+async function getBirthdaysFromExcel() {
+  const stats = await fs.stat(TEAM_INFO_FILE);
+  if (birthdayCache.all.length > 0 && birthdayCache.mtimeMs === stats.mtimeMs) {
+    return birthdayCache.all;
+  }
+
+  const workbook = XLSX.readFile(TEAM_INFO_FILE, { cellDates: true });
+  const sheet = workbook.Sheets[workbook.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+  const headerInfo = findBirthdayHeader(rows);
+  const dataRows = headerInfo ? rows.slice(headerInfo.dataStartIndex) : rows.slice(1);
+  const entries = toBirthdayEntries(dataRows, headerInfo ? headerInfo.columnMap : null);
+
+  const allSorted = entries.sort((a, b) => {
+    if (a.month !== b.month) return a.month - b.month;
+    if (a.day !== b.day) return a.day - b.day;
+    return a.name.localeCompare(b.name, "ko");
+  });
+
+  birthdayCache = {
+    mtimeMs: stats.mtimeMs,
+    all: allSorted
+  };
+  return allSorted;
 }
 
 function formatIncidentMessage(incident) {
@@ -141,6 +293,51 @@ app.get("/api/health", (req, res) => {
     mode: SLACK_WEBHOOK_URL ? "live" : "simulated",
     webhookConfigured: Boolean(SLACK_WEBHOOK_URL)
   });
+});
+
+app.get("/api/birthdays", async (req, res) => {
+  try {
+    const beforeDays = Number.isFinite(Number(req.query.before)) ? Number(req.query.before) : 14;
+    const afterDays = Number.isFinite(Number(req.query.after)) ? Number(req.query.after) : 7;
+    const maxItems = Number.isFinite(Number(req.query.max)) ? Number(req.query.max) : 4;
+    const normalizedBefore = Math.max(0, Math.min(60, Math.floor(beforeDays)));
+    const normalizedAfter = Math.max(0, Math.min(60, Math.floor(afterDays)));
+    const normalizedMax = Math.max(1, Math.min(20, Math.floor(maxItems)));
+    const today = new Date();
+
+    const all = await getBirthdaysFromExcel();
+    const scored = all
+      .map((item) => ({ ...item, diffDays: diffDaysFromToday(item.month, item.day, today) }))
+      .sort((a, b) => {
+        if (Math.abs(a.diffDays) !== Math.abs(b.diffDays)) return Math.abs(a.diffDays) - Math.abs(b.diffDays);
+        if (a.diffDays !== b.diffDays) return a.diffDays - b.diffDays;
+        return a.name.localeCompare(b.name, "ko");
+      });
+
+    let recent = scored
+      .filter((item) => item.diffDays >= -normalizedBefore && item.diffDays <= normalizedAfter)
+      .sort((a, b) => {
+        if (a.diffDays !== b.diffDays) return a.diffDays - b.diffDays;
+        return a.name.localeCompare(b.name, "ko");
+      })
+      .slice(0, normalizedMax);
+
+    if (recent.length === 0 && scored.length > 0) {
+      recent = [scored[0]];
+    }
+
+    res.json({
+      ok: true,
+      beforeDays: normalizedBefore,
+      afterDays: normalizedAfter,
+      maxItems: normalizedMax,
+      recent,
+      all
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ ok: false, error: error.message || "birthday read error" });
+  }
 });
 
 app.get("/api/notice", async (req, res) => {

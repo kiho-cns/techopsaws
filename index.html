@@ -1391,7 +1391,7 @@ body {
 
 .birthday-all-item {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   gap: 10px;
   align-items: center;
   padding: 10px 12px;
@@ -1409,6 +1409,26 @@ body {
 .birthday-all-date {
   font-size: 0.82rem;
   color: var(--lg-gray-700);
+}
+
+.birthday-all-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(38, 74, 122, 0.24);
+  background: rgba(62, 106, 166, 0.08);
+  color: #2f527f;
+  text-decoration: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.birthday-all-link:hover,
+.birthday-all-link:focus-visible {
+  background: rgba(62, 106, 166, 0.16);
+  border-color: rgba(38, 74, 122, 0.34);
 }
 
 main {
@@ -1681,6 +1701,13 @@ footer {
     grid-column: 1 / -1;
     font-size: 0.76rem;
   }
+  .birthday-all-item {
+    grid-template-columns: 1fr auto;
+  }
+  .birthday-all-link {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
   .card-grid,
   .link-list ul {
     grid-template-columns: 1fr;
@@ -1788,6 +1815,24 @@ footer {
 
   .fab-mail::before {
     min-width: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .page-shell,
+  .notice-widget,
+  .incident-modal,
+  .birthday-widget {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 }
 </style>
@@ -2150,7 +2195,6 @@ footer {
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script>
     const tabs = Array.from(document.querySelectorAll('.tab[data-tab]'));
     const sections = Array.from(document.querySelectorAll('.team-section[data-section]'));
@@ -2233,6 +2277,7 @@ footer {
     const noticeAdminPassword = document.getElementById('noticeAdminPassword');
     const noticeAdminText = document.getElementById('noticeAdminText');
     const NOTICE_API_URL = '/api/notice';
+    const BIRTHDAY_API_URL = '/api/birthdays?before=14&after=7&max=4';
     const NOTICE_PANEL_COLLAPSED_KEY = 'notice_panel_collapsed';
     const NOTICE_WELCOME_HIDE_DATE_KEY = 'notice_welcome_hide_date';
     const birthdayList = document.getElementById('birthdayList');
@@ -2343,8 +2388,16 @@ footer {
         date.className = 'birthday-all-date';
         date.textContent = item.birthday || '';
 
+        const link = document.createElement('a');
+        link.className = 'birthday-all-link';
+        link.href = item.profileUrl;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = '블로그 방문';
+
         li.appendChild(name);
         li.appendChild(date);
+        li.appendChild(link);
         birthdayAllList.appendChild(li);
       });
     }
@@ -2358,110 +2411,17 @@ footer {
       birthdayAllOverlay.classList.remove('open');
     }
 
-    function parseBirthday(value) {
-      const text = String(value || '').trim();
-      const match = text.match(/(\d{1,2})\D+(\d{1,2})/);
-      if (!match) return null;
-      const month = Number(match[1]);
-      const day = Number(match[2]);
-      if (!Number.isInteger(month) || !Number.isInteger(day)) return null;
-      if (month < 1 || month > 12 || day < 1 || day > 31) return null;
-      return { month, day, label: `${month}월 ${day}일` };
-    }
-
-    function startOfDay(date) {
-      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
-    }
-
-    function diffDaysFromToday(month, day, baseDate = new Date()) {
-      const today = startOfDay(baseDate);
-      const msPerDay = 24 * 60 * 60 * 1000;
-      const candidates = [
-        new Date(today.getFullYear() - 1, month - 1, day),
-        new Date(today.getFullYear(), month - 1, day),
-        new Date(today.getFullYear() + 1, month - 1, day)
-      ];
-      return candidates
-        .map((candidate) => Math.round((startOfDay(candidate) - today) / msPerDay))
-        .sort((a, b) => Math.abs(a) - Math.abs(b))[0];
-    }
-
-    function toBirthdayEntries(rows) {
-      return rows
-        .map((row) => {
-          const asArray = Array.isArray(row)
-            ? row
-            : [row['이름'] ?? '', row['직급'] ?? '', row['생일'] ?? '', row['사번'] ?? ''];
-          const name = String(asArray[0] ?? '').trim();
-          const grade = String(asArray[1] ?? '').trim();
-          const birthdayRaw = String(asArray[2] ?? '').trim();
-          const employeeId = String(asArray[3] ?? '').trim();
-          const parsed = parseBirthday(birthdayRaw);
-          if (!name || !employeeId || !parsed) return null;
-          return {
-            name,
-            grade,
-            birthday: parsed.label,
-            month: parsed.month,
-            day: parsed.day,
-            profileUrl: `https://ep.lgcns.com/portal/main/listUserMain.do?rightFrameUrl=/support/profile/getProfile.do?targetUserId=${encodeURIComponent(employeeId)}`
-          };
-        })
-        .filter(Boolean);
-    }
-
     async function loadBirthdays() {
       if (!birthdayList) return;
       try {
-        if (!window.XLSX) {
-          throw new Error('xlsx library not loaded');
-        }
-        const response = await fetch('Team Info.xlsx');
+        const response = await fetch(BIRTHDAY_API_URL, { cache: 'no-store' });
         if (!response.ok) {
-          throw new Error(`excel load failed: ${response.status}`);
+          throw new Error(`birthday load failed: ${response.status}`);
         }
-        const arrayBuffer = await response.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-        const dataRows = rows.slice(1);
-        const entries = toBirthdayEntries(dataRows);
-        const beforeDays = 14;
-        const afterDays = 7;
-        const maxItems = 4;
-        const today = new Date();
-
-        const scored = entries
-          .map((item) => ({ ...item, diffDays: diffDaysFromToday(item.month, item.day, today) }))
-          .sort((a, b) => {
-            if (Math.abs(a.diffDays) !== Math.abs(b.diffDays)) {
-              return Math.abs(a.diffDays) - Math.abs(b.diffDays);
-            }
-            if (a.diffDays !== b.diffDays) {
-              return a.diffDays - b.diffDays;
-            }
-            return a.name.localeCompare(b.name, 'ko');
-          });
-
-        allBirthdayItems = [...scored].sort((a, b) => {
-          if (a.month !== b.month) return a.month - b.month;
-          if (a.day !== b.day) return a.day - b.day;
-          return a.name.localeCompare(b.name, 'ko');
-        });
-
-        let items = scored
-          .filter((item) => item.diffDays >= -beforeDays && item.diffDays <= afterDays)
-          .sort((a, b) => {
-            if (a.diffDays !== b.diffDays) return a.diffDays - b.diffDays;
-            return a.name.localeCompare(b.name, 'ko');
-          })
-          .slice(0, maxItems);
-
-        if (items.length === 0 && scored.length > 0) {
-          items = [scored[0]];
-        }
-
-        renderBirthdays(items);
+        const data = await response.json();
+        allBirthdayItems = Array.isArray(data.all) ? data.all : [];
+        const recentItems = Array.isArray(data.recent) ? data.recent : [];
+        renderBirthdays(recentItems);
       } catch (error) {
         console.error(error);
         birthdayList.innerHTML = '';
