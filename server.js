@@ -29,7 +29,22 @@ let birthdayCache = {
 };
 
 app.use(express.json());
-app.use(express.static(__dirname));
+app.use(
+  express.static(__dirname, {
+    etag: true,
+    lastModified: true,
+    maxAge: "7d",
+    setHeaders: (res, filePath) => {
+      const base = path.basename(filePath).toLowerCase();
+      if (base === "index.html") {
+        res.setHeader("Cache-Control", "no-cache");
+      }
+      if (base === "team info.xlsx") {
+        res.setHeader("Cache-Control", "no-cache");
+      }
+    }
+  })
+);
 
 function formatDateTime(date = new Date()) {
   const yyyy = date.getFullYear();

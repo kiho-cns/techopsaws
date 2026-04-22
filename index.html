@@ -58,7 +58,6 @@
       background-size: cover;
       box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.26);
       transition: transform 420ms ease, filter 420ms ease, opacity 420ms ease;
-      will-change: transform;
     }
 
     .bg-tile:nth-child(1) {
@@ -1296,6 +1295,7 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.34);
   background: rgba(255, 255, 255, 0.16);
   backdrop-filter: blur(3px);
+  contain: layout paint style;
 }
 
 .birthday-widget h4 {
@@ -1475,6 +1475,7 @@ main {
   border: 1px solid var(--mx-stroke);
   background: linear-gradient(165deg, var(--mx-surface-strong), rgba(244, 249, 255, 0.8));
   box-shadow: 0 14px 28px rgba(17, 33, 55, 0.09);
+  contain: layout paint style;
 }
 
 .card-grid {
@@ -1629,6 +1630,7 @@ main {
   background: rgba(255, 255, 255, 0.82);
   backdrop-filter: blur(10px);
   box-shadow: 0 16px 30px rgba(22, 39, 64, 0.18);
+  contain: layout paint style;
 }
 
 .notice-head {
@@ -1833,6 +1835,18 @@ footer {
   .birthday-widget {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+}
+
+@supports (content-visibility: auto) {
+  .team-section {
+    content-visibility: auto;
+    contain-intrinsic-size: 820px;
+  }
+
+  .notice-widget {
+    content-visibility: auto;
+    contain-intrinsic-size: 320px;
   }
 }
 </style>
@@ -2593,14 +2607,28 @@ footer {
     const isNoticePanelCollapsed = localStorage.getItem(NOTICE_PANEL_COLLAPSED_KEY) === '1';
     setNoticePanelCollapsed(isNoticePanelCollapsed);
 
-    loadBirthdays();
-
-    loadNotice().then(() => {
-      renderNotice();
-      const hiddenUntilDate = localStorage.getItem(NOTICE_WELCOME_HIDE_DATE_KEY) || '';
-      if (hiddenUntilDate !== todayKey()) {
-        openNoticeWelcomeModal();
+    function scheduleIdle(task) {
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(task, { timeout: 1200 });
+        return;
       }
+      setTimeout(task, 120);
+    }
+
+    window.requestAnimationFrame(() => {
+      scheduleIdle(() => {
+        loadBirthdays();
+      });
+
+      scheduleIdle(() => {
+        loadNotice().then(() => {
+          renderNotice();
+          const hiddenUntilDate = localStorage.getItem(NOTICE_WELCOME_HIDE_DATE_KEY) || '';
+          if (hiddenUntilDate !== todayKey()) {
+            openNoticeWelcomeModal();
+          }
+        });
+      });
     });
   </script>
 </body>
