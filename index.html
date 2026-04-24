@@ -476,6 +476,71 @@
       text-align: center;
     }
 
+    .fab-monitor {
+      position: fixed;
+      left: 22px;
+      top: 214px;
+      width: 72px;
+      height: 72px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 255, 255, 0.72);
+      background: linear-gradient(145deg, #4e8f86, #3c746c 62%, #2e5d56);
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0;
+      font-weight: 800;
+      font-size: 0.94rem;
+      letter-spacing: 0.01em;
+      box-shadow: 0 16px 28px rgba(22, 82, 74, 0.3);
+      z-index: 22;
+      transition: transform 160ms ease, box-shadow 180ms ease, width 220ms ease;
+      padding: 0 18px;
+      overflow: hidden;
+    }
+
+    .fab-monitor:hover,
+    .fab-monitor:focus-visible {
+      width: 320px;
+      transform: translateY(-2px);
+      box-shadow: 0 20px 32px rgba(22, 82, 74, 0.36);
+      outline: none;
+    }
+
+    .fab-monitor .fab-text {
+      display: inline-block;
+      max-width: 0;
+      opacity: 0;
+      overflow: hidden;
+      white-space: nowrap;
+      margin-left: 0;
+      transition: max-width 220ms ease, opacity 180ms ease, margin-left 180ms ease;
+    }
+
+    .fab-monitor:hover .fab-text,
+    .fab-monitor:focus-visible .fab-text {
+      max-width: 250px;
+      opacity: 0.98;
+      margin-left: 10px;
+    }
+
+    .fab-monitor > span:first-child {
+      display: none;
+    }
+
+    .fab-monitor::before {
+      content: "모니터링";
+      font-size: 0.9rem;
+      font-weight: 900;
+      line-height: 1;
+      min-width: 58px;
+      white-space: nowrap;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+
     .notice-widget {
       position: absolute;
       right: -12px;
@@ -1577,23 +1642,23 @@ main {
 
 .fab-emergency {
   position: absolute;
-  left: -94px;
+  right: -98px;
   top: 412px;
-  right: auto;
-  width: 116px;
-  height: 88px;
+  left: auto;
+  width: 112px;
+  height: 80px;
   border: 1px solid rgba(255, 255, 255, 0.64);
-  background: linear-gradient(145deg, #c63f62, #a52f51 68%, #842341);
-  box-shadow: 0 16px 30px rgba(132, 35, 65, 0.32);
-  border-radius: 22px 30px 30px 22px;
+  background: linear-gradient(145deg, #b84f6f, #9e3f5f 68%, #82304f);
+  box-shadow: 0 16px 30px rgba(112, 56, 82, 0.32);
+  border-radius: 30px 22px 22px 30px;
   z-index: 26;
 }
 
 .fab-emergency:hover,
 .fab-emergency:focus-visible {
-  width: 408px;
-  transform: translateX(-286px) translateY(-2px);
-  box-shadow: 0 20px 36px rgba(132, 35, 65, 0.42);
+  width: 392px;
+  transform: translateY(-2px);
+  box-shadow: 0 20px 36px rgba(112, 56, 82, 0.4);
 }
 
 .fab-emergency-label {
@@ -1603,21 +1668,40 @@ main {
 
 .fab-mail {
   position: absolute;
-  left: -84px;
-  top: 518px;
-  right: auto;
-  width: 94px;
-  height: 76px;
+  right: -98px;
+  top: 508px;
+  left: auto;
+  width: 112px;
+  height: 80px;
   border: 1px solid rgba(255, 255, 255, 0.64);
-  background: linear-gradient(145deg, #4d6a88, #3f5a75 62%, #334b63);
-  border-radius: 20px 28px 28px 20px;
+  background: linear-gradient(145deg, #5b6f8f, #4a5f7f 62%, #3b4f6b);
+  border-radius: 28px 20px 20px 28px;
   z-index: 25;
 }
 
 .fab-mail:hover,
 .fab-mail:focus-visible {
-  width: 304px;
-  transform: translateX(-208px) translateY(-2px);
+  width: 392px;
+  transform: translateY(-2px);
+}
+
+.fab-monitor {
+  position: absolute;
+  right: -98px;
+  top: 604px;
+  left: auto;
+  width: 112px;
+  height: 80px;
+  border: 1px solid rgba(255, 255, 255, 0.64);
+  background: linear-gradient(145deg, #4d857f, #3f746d 62%, #345f59);
+  border-radius: 28px 20px 20px 28px;
+  z-index: 24;
+}
+
+.fab-monitor:hover,
+.fab-monitor:focus-visible {
+  width: 392px;
+  transform: translateY(-2px);
 }
 
 .notice-widget {
@@ -1721,7 +1805,7 @@ footer {
   .fab-emergency:hover,
   .fab-emergency:focus-visible {
     width: 320px;
-    transform: translateX(-214px) translateY(-2px);
+    transform: translateY(-2px);
   }
   .fab-emergency-label {
     font-size: 1.08rem;
@@ -1737,7 +1821,17 @@ footer {
   .fab-mail:hover,
   .fab-mail:focus-visible {
     width: 250px;
-    transform: translateX(-182px) translateY(-2px);
+    transform: translateY(-2px);
+  }
+  .fab-monitor {
+    top: 176px;
+    width: 68px;
+    height: 68px;
+  }
+  .fab-monitor:hover,
+  .fab-monitor:focus-visible {
+    width: 250px;
+    transform: translateY(-2px);
   }
   .notice-widget {
     position: static;
@@ -1782,7 +1876,8 @@ footer {
 
 @media (max-width: 980px) {
   .fab-emergency,
-  .fab-mail {
+  .fab-mail,
+  .fab-monitor {
     position: static;
     left: auto;
     top: auto;
@@ -1802,20 +1897,24 @@ footer {
   .fab-emergency:hover,
   .fab-emergency:focus-visible,
   .fab-mail:hover,
-  .fab-mail:focus-visible {
+  .fab-mail:focus-visible,
+  .fab-monitor:hover,
+  .fab-monitor:focus-visible {
     width: auto;
     transform: none !important;
   }
 
   .fab-emergency-text,
-  .fab-mail .fab-text {
+  .fab-mail .fab-text,
+  .fab-monitor .fab-text {
     max-width: 220px;
     opacity: 1;
     margin-left: 8px;
     overflow: visible;
   }
 
-  .fab-mail::before {
+  .fab-mail::before,
+  .fab-monitor::before {
     min-width: 24px;
   }
 }
@@ -2072,6 +2171,11 @@ footer {
     <a class="fab-mail" href="mailto:choimaest@lgcns.com?subject=%EC%88%98%EC%A0%95%EC%9A%94%EC%B2%AD" aria-label="피드백 메일 보내기">
       <span>피드백</span>
       <span class="fab-text">수정요청<br>(Outlook으로 열어주세요)</span>
+    </a>
+
+    <a class="fab-monitor" href="Tool/ScreenRegionMonitor.exe" download="ScreenRegionMonitor.exe" target="_blank" rel="noopener noreferrer" aria-label="모니터링도우미 다운로드">
+      <span>모니터링</span>
+      <span class="fab-text">모니터링도우미(다운로드)</span>
     </a>
 
     <button class="fab-emergency" type="button" id="openEmergencyModal" aria-label="긴급 장애 메시지 작성 열기">
