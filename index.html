@@ -1628,6 +1628,126 @@ main {
   padding: 4px 8px;
 }
 
+.fg-group-item {
+  display: grid;
+  gap: 8px;
+}
+
+.fg-group-item .fg-helper-link {
+  border: 1px dashed rgba(165, 0, 52, 0.35);
+  background: rgba(255, 247, 250, 0.92);
+}
+
+.fg-step {
+  display: grid;
+  gap: 8px;
+}
+
+.fg-step-panel {
+  display: grid;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(180, 195, 214, 0.8);
+  border-radius: 12px;
+  background: rgba(250, 253, 255, 0.94);
+}
+
+.fg-step-panel[hidden] {
+  display: none !important;
+}
+
+.fg-helper-grid [hidden] {
+  display: none !important;
+}
+
+.fg-step-title {
+  margin: 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #344a66;
+}
+
+.fg-video-example {
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(182, 196, 214, 0.75);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.fg-video-title {
+  font-size: 0.8rem;
+  color: #314760;
+}
+
+.fg-video-player {
+  width: 100%;
+  max-height: 260px;
+  border-radius: 8px;
+  background: #000;
+}
+
+.fg-guide {
+  min-height: 22px;
+  font-size: 0.81rem;
+  font-weight: 700;
+  color: #214a8f;
+}
+
+.fg-helper-modal {
+  width: min(900px, 95vw);
+}
+
+.fg-helper-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.fg-helper-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.fg-ocr-status {
+  font-size: 0.78rem;
+  color: #42566f;
+}
+
+.fg-parsed-list {
+  min-height: 82px;
+  max-height: 220px;
+  overflow: auto;
+  border: 1px solid rgba(177, 193, 214, 0.9);
+  border-radius: 10px;
+  background: #fff;
+  padding: 10px 12px;
+  font-size: 0.83rem;
+  line-height: 1.45;
+  color: #223146;
+}
+
+.fg-parsed-item {
+  padding: 4px 0;
+  border-bottom: 1px dashed rgba(210, 220, 232, 0.9);
+}
+
+.fg-parsed-item:last-child {
+  border-bottom: none;
+}
+
+.fg-paste-hint {
+  margin-top: 6px;
+  padding: 8px 10px;
+  border: 1px dashed rgba(141, 159, 184, 0.9);
+  border-radius: 10px;
+  background: rgba(248, 252, 255, 0.92);
+  font-size: 0.78rem;
+  color: #42566f;
+}
+
 .link-grid {
   gap: 12px;
   grid-template-columns: repeat(auto-fit, minmax(210px, 310px));
@@ -2042,10 +2162,14 @@ footer {
                 <span>SharePoint</span>
               </a>
             </li>
-            <li>
+            <li class="fg-group-item">
               <a href="https://lgcns.sharepoint.com/:x:/s/SAPECSTechops/Edrux023o5NChZw69xbewpoBMBjRf-d2fYMAtvuXLptSjw?e=z8IJ7F" target="_blank" rel="noreferrer">
                 필드글라스 입력
                 <span>SharePoint</span>
+              </a>
+              <a href="#" id="fgOpenModalLink" class="fg-helper-link" aria-label="필드글라스 입력 도우미 열기">
+                필드글라스 입력 도우미
+                <span>Helper</span>
               </a>
             </li>
             <li>
@@ -2313,6 +2437,53 @@ footer {
     </div>
   </div>
 
+  <div class="modal-overlay" id="fgHelperOverlay" role="dialog" aria-modal="true" aria-labelledby="fgHelperTitle">
+    <div class="incident-modal fg-helper-modal">
+      <div class="incident-head">
+        <div class="incident-head-copy">
+          <h3 id="fgHelperTitle">필드글라스 입력 도우미</h3>
+          <p class="incident-head-note">단계대로 입력하면 필드글라스용 한 줄 결과를 자동 복사합니다.</p>
+        </div>
+        <button class="incident-close" type="button" id="closeFgHelper" aria-label="도우미 닫기">×</button>
+      </div>
+      <div class="fg-helper-grid">
+        <section class="fg-step-panel" id="fgStepYearMonth">
+          <p class="fg-step-title">1) 현재 년/월을 선택하세요.</p>
+          <div class="fg-helper-actions">
+            <select id="fgYearSelect" aria-label="기준 년도"></select>
+            <select id="fgMonthSelect" aria-label="기준 월"></select>
+            <button type="button" class="incident-btn primary" id="fgNextStep">다음</button>
+          </div>
+        </section>
+        <section class="fg-step-panel" id="fgStepInput" hidden>
+          <p class="fg-step-title">2) 근태 화면에서 복사한 텍스트를 붙여넣고 생성하세요.</p>
+          <div class="fg-video-example">
+            <strong class="fg-video-title">예시 가이드 영상</strong>
+            <video class="fg-video-player" controls preload="metadata" playsinline>
+              <source src="video/Guide_for_fieldglass_helper.mp4" type="video/mp4">
+              브라우저가 동영상 재생을 지원하지 않습니다.
+            </video>
+          </div>
+          <textarea id="fgSourceText" placeholder="예: 01 \n야간(3:30)\n11\n휴일근무(10:00)\n13\n휴무(신청-오후)(4:00)"></textarea>
+          <div class="fg-helper-actions">
+            <button type="button" class="incident-btn primary" id="fgGenerate" disabled>생성</button>
+          </div>
+        </section>
+        <section class="fg-step-panel" id="fgStepResult" hidden>
+          <div class="fg-helper-actions">
+            <button type="button" class="incident-btn secondary" id="fgCopy">한줄로 복사</button>
+            <span id="fgStatus" class="fg-ocr-status">최종 결과를 확인하세요.</span>
+          </div>
+          <div class="fg-guide" id="fgGuide"></div>
+          <label for="fgParsedList">근태 텍스트 정리 결과 (일자별)</label>
+          <div id="fgParsedList" class="fg-parsed-list">인식 결과가 여기에 일자별로 표시됩니다.</div>
+          <label for="fgResultLine">최종 결과 (필드글라스 1일 셀 기준 붙여넣기)</label>
+          <textarea id="fgResultLine" readonly placeholder="생성 버튼을 누르면 여기에 최종 결과가 생성됩니다."></textarea>
+        </section>
+      </div>
+    </div>
+  </div>
+
   <script>
     const tabs = Array.from(document.querySelectorAll('.tab[data-tab]'));
     const sections = Array.from(document.querySelectorAll('.team-section[data-section]'));
@@ -2396,6 +2567,23 @@ footer {
     const noticeAdminText = document.getElementById('noticeAdminText');
     const NOTICE_API_URL = '/api/notice';
     const BIRTHDAY_API_URL = '/api/birthdays?before=14&after=7&max=4';
+    const HOLIDAYS_API_URL = '/api/holidays';
+    const fgOpenModalLink = document.getElementById('fgOpenModalLink');
+    const fgHelperOverlay = document.getElementById('fgHelperOverlay');
+    const closeFgHelperBtn = document.getElementById('closeFgHelper');
+    const fgNextStepBtn = document.getElementById('fgNextStep');
+    const fgStepYearMonth = document.getElementById('fgStepYearMonth');
+    const fgStepInput = document.getElementById('fgStepInput');
+    const fgStepResult = document.getElementById('fgStepResult');
+    const fgYearSelect = document.getElementById('fgYearSelect');
+    const fgMonthSelect = document.getElementById('fgMonthSelect');
+    const fgStatus = document.getElementById('fgStatus');
+    const fgGuide = document.getElementById('fgGuide');
+    const fgSourceText = document.getElementById('fgSourceText');
+    const fgParsedList = document.getElementById('fgParsedList');
+    const fgGenerateBtn = document.getElementById('fgGenerate');
+    const fgCopyBtn = document.getElementById('fgCopy');
+    const fgResultLine = document.getElementById('fgResultLine');
     const NOTICE_PANEL_COLLAPSED_KEY = 'notice_panel_collapsed';
     const NOTICE_WELCOME_HIDE_DATE_KEY = 'notice_welcome_hide_date';
     const birthdayList = document.getElementById('birthdayList');
@@ -2444,6 +2632,308 @@ footer {
       const mm = String(d.getMonth() + 1).padStart(2, '0');
       const dd = String(d.getDate()).padStart(2, '0');
       return `${yyyy}-${mm}-${dd}`;
+    }
+
+    function parseDurationHours(text) {
+      const normalized = String(text || '')
+        .replace(/[：;.,]/g, ':')
+        .replace(/[^\d:]/g, '');
+      let hh = 0;
+      let mm = 0;
+      const hhmm = normalized.match(/^(\d{1,2})\s*:\s*(\d{1,2})$/);
+      if (hhmm) {
+        hh = Number(hhmm[1]);
+        mm = Number(hhmm[2]);
+      } else {
+        const compact = normalized.replace(/:/g, '');
+        const m3 = compact.match(/^(\d)(\d{2})$/);   // 330 -> 3:30
+        const m4 = compact.match(/^(\d{2})(\d{2})$/); // 1430 -> 14:30
+        if (m3) {
+          hh = Number(m3[1]);
+          mm = Number(m3[2]);
+        } else if (m4) {
+          hh = Number(m4[1]);
+          mm = Number(m4[2]);
+        } else {
+          return 0;
+        }
+      }
+      if (!Number.isFinite(hh) || !Number.isFinite(mm)) return 0;
+      if (mm < 0 || mm >= 60) return 0;
+      return hh + (mm / 60);
+    }
+
+    function normalizeLineHours(value) {
+      const rounded = Math.round((value + Number.EPSILON) * 2) / 2;
+      if (rounded <= 0) return '0';
+      return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+    }
+
+    function calculateFieldglassLine({ year, month, holidayDays, sourceText }) {
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const holidaySet = new Set(holidayDays || []);
+      const hours = Array.from({ length: daysInMonth }, (_, index) => {
+        const day = index + 1;
+        const weekday = new Date(year, month - 1, day).getDay();
+        const isWeekend = weekday === 0 || weekday === 6;
+        if (isWeekend || holidaySet.has(day)) return null;
+        return 8;
+      });
+
+      const lines = getAttendanceLines(sourceText);
+
+      let currentDay = null;
+      const dayPattern = /^(?:\D*)(0?[1-9]|[12]\d|3[01])(?:\D|$)/;
+      lines.forEach((line) => {
+        const normalized = line;
+        const dayMatch = line.match(dayPattern);
+        if (dayMatch) {
+          const day = Number(dayMatch[1]);
+          if (Number.isInteger(day) && day >= 1 && day <= daysInMonth) {
+            currentDay = day;
+          }
+        }
+
+        if (!currentDay) return;
+        const index = currentDay - 1;
+        const entry = parseAttendanceEntryFromNormalizedLine(normalized);
+        if (!entry.isHolidayWork && !entry.isNight && !entry.hasLeave && !entry.isRest) return;
+
+        if (entry.isHolidayWork && entry.holidayHours > 0) {
+          const base = typeof hours[index] === 'number' ? hours[index] : 0;
+          hours[index] = base + entry.holidayHours;
+        }
+
+        if (entry.isNight && entry.nightHours >= 3.5) {
+          const base = typeof hours[index] === 'number' ? hours[index] : 0;
+          hours[index] = base + Math.max(0, entry.nightHours - 3.5);
+        }
+
+        if (entry.hasLeave) {
+          const base = typeof hours[index] === 'number' ? hours[index] : 0;
+          if (entry.isLeaveHalfHalf) hours[index] = base - 2;
+          else if (entry.isLeaveHalf) hours[index] = base - 4;
+          else hours[index] = base - 8;
+        }
+
+        if (entry.isRest && entry.restHours > 0) {
+          const base = typeof hours[index] === 'number' ? hours[index] : 0;
+          hours[index] = base - entry.restHours;
+        }
+      });
+
+      const line31 = Array.from({ length: 31 }, (_, idx) => {
+        if (idx >= daysInMonth) return '';
+        const value = hours[idx];
+        if (value === null) return '';
+        return normalizeLineHours(Math.max(0, Number(value) || 0));
+      });
+      // 1일 칸이 비어 있으면 복붙 시 선행 공백이 잘리는 환경에서 정렬이 밀릴 수 있어 기본값 0으로 고정
+      if (!line31[0]) {
+        line31[0] = '0';
+      }
+
+      return {
+        daysInMonth,
+        hours: line31,
+        tabLine: line31.join('\t')
+      };
+    }
+
+    function normalizeOcrTextForAttendance(text) {
+      return String(text || '')
+        .replace(/：/g, ':')
+        .replace(/[;,.]/g, ':')
+        .replace(/[OoＯ]/g, '0')
+        .replace(/[ⅠIl|]/g, '1')
+        .replace(/[\[\]{}<>]/g, '()')
+        .replace(/[•●◦▪□■✅☑✔✓]/g, ' ')
+        .replace(/[“”]/g, '')
+        .replace(/\s+/g, ' ')
+        .replace(/\r/g, '')
+        .trim();
+    }
+
+    function getAttendanceLines(sourceText) {
+      const rawLines = String(sourceText || '')
+        .split('\n')
+        .map((line) => normalizeOcrTextForAttendance(line))
+        .filter(Boolean);
+      if (rawLines.length <= 1) return rawLines;
+
+      const merged = [];
+      const dayOnlyPattern = /^(0?[1-9]|[12]\d|3[01])$/;
+      const weekdayHeaderPattern = /^(일|월|화|수|목|금|토)(\s+(일|월|화|수|목|금|토))*$/;
+      const reasonPattern = /(휴|근|무|야|연|차|\(\d{1,4}(?::\d{1,2})?\))/;
+
+      for (let i = 0; i < rawLines.length; i += 1) {
+        const current = rawLines[i];
+        if (weekdayHeaderPattern.test(current)) continue;
+        const next = rawLines[i + 1] || '';
+        if (dayOnlyPattern.test(current) && reasonPattern.test(next)) {
+          merged.push(`${current} ${next}`);
+          i += 1;
+        } else {
+          merged.push(current);
+        }
+      }
+      return merged;
+    }
+
+    function levenshteinDistance(a, b) {
+      const s = String(a || '');
+      const t = String(b || '');
+      const n = s.length;
+      const m = t.length;
+      if (n === 0) return m;
+      if (m === 0) return n;
+      const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+      for (let i = 0; i <= n; i += 1) dp[i][0] = i;
+      for (let j = 0; j <= m; j += 1) dp[0][j] = j;
+      for (let i = 1; i <= n; i += 1) {
+        for (let j = 1; j <= m; j += 1) {
+          const cost = s[i - 1] === t[j - 1] ? 0 : 1;
+          dp[i][j] = Math.min(
+            dp[i - 1][j] + 1,
+            dp[i][j - 1] + 1,
+            dp[i - 1][j - 1] + cost
+          );
+        }
+      }
+      return dp[n][m];
+    }
+
+    function similarityScore(a, b) {
+      const s = String(a || '');
+      const t = String(b || '');
+      const maxLen = Math.max(s.length, t.length) || 1;
+      return 1 - (levenshteinDistance(s, t) / maxLen);
+    }
+
+    function normalizeReasonToken(token) {
+      return String(token || '')
+        .replace(/[^가-힣a-zA-Z]/g, '')
+        .trim();
+    }
+
+    function mapReasonTokenFuzzy(token) {
+      const t = normalizeReasonToken(token);
+      if (!t) return null;
+
+      const groups = [
+        { key: 'holiday', words: ['휴일근무', '주말근무', '특근', '휴일', '휴근', '주말'] },
+        { key: 'night', words: ['야간', '야근'] },
+        { key: 'leave', words: ['연차', '휴가'] },
+        { key: 'rest', words: ['휴무'] }
+      ];
+
+      for (const g of groups) {
+        if (g.words.some((w) => t.includes(w) || w.includes(t))) return g.key;
+      }
+
+      let best = { key: null, score: 0 };
+      for (const g of groups) {
+        for (const w of g.words) {
+          const score = similarityScore(t, w);
+          if (score > best.score) {
+            best = { key: g.key, score };
+          }
+        }
+      }
+      return best.score >= 0.45 ? best.key : null;
+    }
+
+    function extractHoursByKeyword(line, keywords) {
+      const timeCapture = '(\\d{1,2}[:：]\\d{1,2}|\\d{3,4})';
+      for (const keyword of keywords) {
+        const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`${escaped}(?:\\([^)]*\\))*\\(${timeCapture}\\)`, 'i');
+        const match = line.match(regex);
+        if (match) {
+          const hours = parseDurationHours(match[1]);
+          if (hours > 0) return hours;
+        }
+      }
+      return 0;
+    }
+
+    function parseAttendanceEntryFromNormalizedLine(normalizedLine) {
+      const line = String(normalizedLine || '').replace(/\s+/g, '');
+      const leaveHalfHalf = line.includes('연차(반반차)') || line.includes('반반차');
+      const leaveHalf = !leaveHalfHalf && (line.includes('연차(반차)') || line.includes('반차') || line.includes('연차(오후)'));
+
+      let isHolidayWork = false;
+      let holidayHours = 0;
+      let isNight = false;
+      let nightHours = 0;
+      let isRest = false;
+      let restHours = 0;
+      let hasLeave = line.includes('연차');
+      let leaveHours = 8;
+
+      const reasonTimeRegex = /([^\s()]{1,16})\((\d{1,2}[:：]\d{1,2})\)/g;
+      let m;
+      while ((m = reasonTimeRegex.exec(line)) !== null) {
+        const token = m[1];
+        const hours = parseDurationHours(m[2]);
+        if (hours <= 0) continue;
+        const reasonKey = mapReasonTokenFuzzy(token);
+        if (reasonKey === 'holiday') {
+          isHolidayWork = true;
+          holidayHours += hours;
+        } else if (reasonKey === 'night') {
+          isNight = true;
+          nightHours += hours;
+        } else if (reasonKey === 'leave') {
+          hasLeave = true;
+          leaveHours = hours;
+        } else if (reasonKey === 'rest') {
+          isRest = true;
+          restHours += hours;
+        }
+      }
+
+      if (!isHolidayWork) {
+        const fallbackHoliday = extractHoursByKeyword(line, ['휴일근무', '주말근무', '특근']);
+        if (fallbackHoliday > 0) {
+          isHolidayWork = true;
+          holidayHours = fallbackHoliday;
+        }
+      }
+      if (!isNight) {
+        const fallbackNight = extractHoursByKeyword(line, ['야간', '야근']);
+        if (fallbackNight > 0) {
+          isNight = true;
+          nightHours = fallbackNight;
+        }
+      }
+      if (!isRest) {
+        const fallbackRest = extractHoursByKeyword(line, ['휴무']);
+        if (fallbackRest > 0) {
+          isRest = true;
+          restHours = fallbackRest;
+        }
+      }
+      if (hasLeave) {
+        const fallbackLeave = extractHoursByKeyword(line, ['연차', '휴가']);
+        if (fallbackLeave > 0) leaveHours = fallbackLeave;
+      } else {
+        const leaveLike = mapReasonTokenFuzzy(line);
+        if (leaveLike === 'leave') hasLeave = true;
+      }
+
+      return {
+        isHolidayWork,
+        holidayHours,
+        isNight,
+        nightHours,
+        isRest,
+        restHours,
+        hasLeave,
+        isLeaveHalf: leaveHalf,
+        isLeaveHalfHalf: leaveHalfHalf,
+        leaveHours
+      };
     }
 
     function renderBirthdays(items) {
@@ -2527,6 +3017,145 @@ footer {
 
     function closeBirthdayAllModal() {
       birthdayAllOverlay.classList.remove('open');
+    }
+
+    function openFgHelperModal() {
+      initFgYearMonthSelects();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (fgHelperOverlay) fgHelperOverlay.classList.add('open');
+      if (fgStepYearMonth) fgStepYearMonth.hidden = false;
+      if (fgStepInput) fgStepInput.hidden = true;
+      if (fgStepResult) fgStepResult.hidden = true;
+      if (fgSourceText) fgSourceText.value = '';
+      if (fgResultLine) fgResultLine.value = '';
+      if (fgParsedList) fgParsedList.textContent = '인식 결과가 여기에 일자별로 표시됩니다.';
+      if (fgGenerateBtn) fgGenerateBtn.disabled = true;
+      if (fgStatus) fgStatus.textContent = '현재 년/월을 선택한 후 다음을 눌러주세요.';
+      if (fgGuide) fgGuide.textContent = '';
+    }
+
+    function showFgStepInput() {
+      if (fgStepYearMonth) fgStepYearMonth.hidden = true;
+      if (fgStepInput) {
+        fgStepInput.hidden = false;
+        fgStepInput.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+      if (fgStepResult) fgStepResult.hidden = true;
+    }
+
+    function showFgStepResult() {
+      if (fgStepYearMonth) fgStepYearMonth.hidden = true;
+      if (fgStepInput) fgStepInput.hidden = true;
+      if (fgStepResult) {
+        fgStepResult.hidden = false;
+        fgStepResult.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+
+    function closeFgHelperModal() {
+      if (fgHelperOverlay) fgHelperOverlay.classList.remove('open');
+    }
+
+    function getFgYearMonth() {
+      const now = new Date();
+      const year = Number(fgYearSelect?.value) || now.getFullYear();
+      const month = Number(fgMonthSelect?.value) || now.getMonth() + 1;
+      return { year, month };
+    }
+
+    function initFgYearMonthSelects() {
+      if (!fgYearSelect || !fgMonthSelect) return;
+      if (fgYearSelect.options.length > 0 && fgMonthSelect.options.length > 0) return;
+
+      const now = new Date();
+      const baseYear = now.getFullYear();
+      for (let year = baseYear - 2; year <= baseYear + 2; year += 1) {
+        const option = document.createElement('option');
+        option.value = String(year);
+        option.textContent = `${year}년`;
+        if (year === baseYear) option.selected = true;
+        fgYearSelect.appendChild(option);
+      }
+
+      for (let month = 1; month <= 12; month += 1) {
+        const option = document.createElement('option');
+        option.value = String(month);
+        option.textContent = `${month}월`;
+        if (month === now.getMonth() + 1) option.selected = true;
+        fgMonthSelect.appendChild(option);
+      }
+    }
+
+    async function fetchHolidayDays(year, month) {
+      try {
+        const query = `?year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`;
+        const response = await fetch(`${HOLIDAYS_API_URL}${query}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`holiday api failed: ${response.status}`);
+        const data = await response.json();
+        return Array.isArray(data?.days)
+          ? data.days.filter((d) => Number.isInteger(d) && d >= 1 && d <= 31)
+          : [];
+      } catch (error) {
+        console.warn('holiday fetch failed, weekend only mode', error);
+        return [];
+      }
+    }
+
+    function extractAttendanceByDay(sourceText, daysInMonth = 31) {
+      const lines = getAttendanceLines(sourceText);
+
+      const results = [];
+      let currentDay = null;
+      const dayPattern = /^(?:\D*)(0?[1-9]|[12]\d|3[01])(?:\D|$)/;
+
+      lines.forEach((line) => {
+        const normalized = line;
+        const dayMatch = line.match(dayPattern);
+        if (dayMatch) {
+          const day = Number(dayMatch[1]);
+          if (Number.isInteger(day) && day >= 1 && day <= daysInMonth) {
+            currentDay = day;
+          }
+        }
+        if (!currentDay) return;
+
+        const labels = [];
+        const entry = parseAttendanceEntryFromNormalizedLine(normalized);
+        if (entry.isHolidayWork && entry.holidayHours > 0) labels.push(`휴일근무(${entry.holidayHours.toFixed(2).replace(/\.00$/, '')}h)`);
+        if (entry.isNight && entry.nightHours > 0) labels.push(`야간(${entry.nightHours.toFixed(2).replace(/\.00$/, '')}h)`);
+        if (entry.hasLeave) {
+          if (entry.isLeaveHalfHalf) labels.push('연차(반반차)');
+          else if (entry.isLeaveHalf) labels.push('연차(반차)');
+          else labels.push(`연차(${entry.leaveHours.toFixed(2).replace(/\.00$/, '')}h)`);
+        }
+        if (entry.isRest && entry.restHours > 0) labels.push(`휴무(${entry.restHours.toFixed(2).replace(/\.00$/, '')}h)`);
+
+        if (labels.length > 0) {
+          results.push({ day: currentDay, labels });
+        }
+      });
+
+      return results;
+    }
+
+    function renderFgParsedList() {
+      const ym = getFgYearMonth();
+      const daysInMonth = ym ? new Date(ym.year, ym.month, 0).getDate() : 31;
+      const items = extractAttendanceByDay(fgSourceText.value, daysInMonth);
+      const byDay = new Map();
+      items.forEach((item) => {
+        const prev = byDay.get(item.day) || [];
+        byDay.set(item.day, prev.concat(item.labels || []));
+      });
+
+      const rows = Array.from({ length: daysInMonth }, (_, index) => {
+        const day = index + 1;
+        const labels = byDay.get(day) || [];
+        const labelText = labels.length ? labels.join(', ') : '-';
+        return `<div class="fg-parsed-item"><strong>${String(day).padStart(2, '0')}일</strong> - ${labelText}</div>`;
+      });
+
+      fgParsedList.innerHTML = rows.join('');
     }
 
     async function loadBirthdays() {
@@ -2632,8 +3261,75 @@ footer {
     openBirthdayAllBtn.addEventListener('click', openBirthdayAllModal);
     closeBirthdayAllBtn.addEventListener('click', closeBirthdayAllModal);
     confirmBirthdayAllBtn.addEventListener('click', closeBirthdayAllModal);
+    fgOpenModalLink.addEventListener('click', (event) => {
+      event.preventDefault();
+      openFgHelperModal();
+    });
+    closeFgHelperBtn.addEventListener('click', closeFgHelperModal);
+    fgNextStepBtn.addEventListener('click', () => {
+      showFgStepInput();
+      if (fgStatus) fgStatus.textContent = '근태 화면에서 복사한 텍스트를 붙여넣고 생성을 눌러주세요.';
+      renderFgParsedList();
+      if (fgSourceText) fgSourceText.focus();
+    });
 
-    [formOverlay, resultOverlay, noticeOverlay, noticeWelcomeOverlay, birthdayAllOverlay].forEach((overlay) => {
+    fgSourceText.addEventListener('input', () => {
+      renderFgParsedList();
+      if (fgGenerateBtn) {
+        fgGenerateBtn.disabled = !String(fgSourceText.value || '').trim();
+      }
+    });
+    fgYearSelect.addEventListener('change', renderFgParsedList);
+    fgMonthSelect.addEventListener('change', renderFgParsedList);
+
+    fgGenerateBtn.addEventListener('click', async () => {
+      const sourceText = String(fgSourceText.value || '').trim();
+      if (!sourceText) {
+        alert('근태 텍스트를 먼저 붙여넣어 주세요.');
+        return;
+      }
+      const ym = getFgYearMonth();
+      const { year, month } = ym;
+      const holidayDays = await fetchHolidayDays(year, month);
+      const result = calculateFieldglassLine({
+        year,
+        month,
+        holidayDays,
+        sourceText
+      });
+      fgResultLine.value = result.tabLine;
+      showFgStepResult();
+      if (fgGuide) {
+        fgGuide.textContent = '최종 결과를 점검하고, 필드글라스 엑셀 1일을 선택후 붙여넣으세요';
+      }
+      fgStatus.textContent = `${year}-${String(month).padStart(2, '0')} 기준 ${result.daysInMonth}일 생성 완료 (공휴일 ${holidayDays.length}건 반영)`;
+      try {
+        await navigator.clipboard.writeText(result.tabLine);
+        fgStatus.textContent += ' · 클립보드 자동 저장 완료';
+      } catch (error) {
+        console.warn('auto copy failed', error);
+        fgStatus.textContent += ' · 자동 복사 실패(아래 버튼으로 복사)';
+      }
+    });
+
+    fgCopyBtn.addEventListener('click', async () => {
+      const rawText = String(fgResultLine.value || '');
+      if (!rawText.trim()) {
+        alert('먼저 시간라인을 생성해 주세요.');
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(rawText);
+        alert('시간라인을 클립보드에 복사했습니다.');
+      } catch (error) {
+        console.error(error);
+        fgResultLine.focus();
+        fgResultLine.select();
+        alert('자동 복사에 실패했습니다. 선택된 값을 직접 복사해 주세요.');
+      }
+    });
+
+    [formOverlay, resultOverlay, noticeOverlay, noticeWelcomeOverlay, birthdayAllOverlay, fgHelperOverlay].forEach((overlay) => {
       overlay.addEventListener('click', (event) => {
         if (event.target === overlay) {
           overlay.classList.remove('open');

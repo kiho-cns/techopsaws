@@ -16,6 +16,7 @@ const PORT = Number(process.env.PORT || 5000);
 const DATA_FILE = path.join(__dirname, "data", "incidents.json");
 const NOTICE_FILE = path.join(__dirname, "data", "notice.json");
 const TEAM_INFO_FILE = path.join(__dirname, "Team Info.xlsx");
+const HOLIDAY_FILE = path.join(__dirname, "data", "kr_legal_holidays_2026_2040.json");
 const SLACK_WEBHOOK_URL = process.env.SLACK_WEBHOOK_URL || "";
 const NOTICE_ADMIN_PASSWORD = process.env.NOTICE_ADMIN_PASSWORD || "leader_yang";
 const ALLOW_INSECURE_TLS =
@@ -27,6 +28,7 @@ let birthdayCache = {
   mtimeMs: 0,
   all: []
 };
+let holidayCache = null;
 
 app.use(express.json());
 app.use(
@@ -265,6 +267,17 @@ async function writeNoticeStore(store) {
   await fs.writeFile(NOTICE_FILE, JSON.stringify(store, null, 2), "utf8");
 }
 
+async function loadHolidayCalendar() {
+  if (holidayCache) return holidayCache;
+  const raw = await fs.readFile(HOLIDAY_FILE, "utf8");
+  const parsed = JSON.parse(raw);
+  holidayCache = parsed && typeof parsed === "object" ? parsed : { years: {} };
+  if (!holidayCache.years || typeof holidayCache.years !== "object") {
+    holidayCache.years = {};
+  }
+  return holidayCache;
+}
+
 async function sendToSlack(payload) {
   if (!SLACK_WEBHOOK_URL) {
     if (!ALLOW_SIMULATED_SEND) {
@@ -308,6 +321,37 @@ app.get("/api/health", (req, res) => {
     mode: SLACK_WEBHOOK_URL ? "live" : "simulated",
     webhookConfigured: Boolean(SLACK_WEBHOOK_URL)
   });
+});
+
+app.get("/api/holidays", async (req, res) => {
+  try {
+    const now = new Date();
+    const year = Number(req.query.year || now.getFullYear());
+    const month = Number(req.query.month || now.getMonth() + 1);
+
+    if (!Number.isInteger(year) || year < 2026 || year > 2040) {
+      return res.status(400).json({ error: "supported year range is 2026-2040" });
+    }
+    if (!Number.isInteger(month) || month < 1 || month > 12) {
+      return res.status(400).json({ error: "invalid month" });
+    }
+
+    const calendar = await loadHolidayCalendar();
+    const yearInfo = calendar.years?.[String(year)] || {};
+    const monthDays = yearInfo[String(month)];
+    const days = Array.isArray(monthDays)
+      ? monthDays.filter((d) => Number.isInteger(d) && d >= 1 && d <= 31).sort((a, b) => a - b)
+      : [];
+
+    return res.json({
+      year,
+      month,
+      days,
+      source: "kr_legal_holidays_2026_2040.json"
+    });
+  } catch (error) {
+    return res.status(500).json({ error: error.message || "holiday read error" });
+  }
 });
 
 app.get("/api/birthdays", async (req, res) => {
